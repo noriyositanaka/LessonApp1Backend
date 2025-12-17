@@ -5,6 +5,7 @@
 
 <groupId>gcfv2</groupId>
  <artifactId>http</artifactId>
+ <packaging>jar</packaging>
  <version>0.0.1</version>
  <name>HTTP Function</name>
 
