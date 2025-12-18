@@ -1,0 +1,21 @@
+steps:
+- name: 'gcr.io/cloud-builders/mvn'
+  args: ['package', '-DskipTests']
+
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      # Deploy to Cloud Functions (Gen1) using the source in this repo
+      gcloud functions deploy HelloHttpFunction \
+        --project=lessonapp1-4843e \
+        --region=asia-northeast1 \
+        --runtime=java11 \
+        --entry-point=gcfv2.HelloHttpFunction \
+        --trigger-http \
+        --source=. \
+        --quiet
+
+# No images are built/pushed by this build
+images: []
