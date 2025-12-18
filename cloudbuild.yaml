@@ -19,3 +19,6 @@ steps:
 
 # No images are built/pushed by this build
 images: []
+
+options:
+  defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
