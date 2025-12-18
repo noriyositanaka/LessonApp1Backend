@@ -11,7 +11,7 @@ steps:
       gcloud functions deploy HelloHttpFunction \
         --project=lessonapp1-4843e \
         --region=asia-northeast1 \
-        --runtime=java11 \
+        --runtime=java21 \
         --entry-point=gcfv2.HelloHttpFunction \
         --trigger-http \
         --source=. \
