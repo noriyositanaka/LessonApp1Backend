@@ -1,7 +1,6 @@
 package gcfv2;
 
 import java.io.BufferedWriter;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -9,11 +8,8 @@ import com.google.cloud.functions.HttpFunction;
 import com.google.cloud.functions.HttpRequest;
 import com.google.cloud.functions.HttpResponse;
 import com.google.gson.Gson;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
-import com.google.auth.oauth2.GoogleCredentials;
 
 public class HelloHttpFunction implements HttpFunction {
 
@@ -23,15 +19,6 @@ public class HelloHttpFunction implements HttpFunction {
   }
 
   private static final Gson gson = new Gson();
-
-  private static void ensureFirebaseInitialized() throws IOException {
-    if (FirebaseApp.getApps().isEmpty()) {
-      FirebaseOptions options = FirebaseOptions.builder()
-          .setCredentials(GoogleCredentials.getApplicationDefault())
-          .build();
-      FirebaseApp.initializeApp(options);
-    }
-  }
 
   public void service(final HttpRequest request, final HttpResponse response) throws Exception {
 
@@ -75,20 +62,9 @@ public class HelloHttpFunction implements HttpFunction {
 
     String uid = null;
     // Firebase ID token の検証
-    try {
-      ensureFirebaseInitialized();
-
-      FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
-      uid = decodedToken.getUid();
-      // 必要なら decodedToken を使って uid 等を参照できます
-    } catch (Exception e) {
-      response.setStatusCode(401);
-      writer.write(gson.toJson(new ResponseMessage("invalid token")));
-      return;
-    }
-
-    // 一時的なデバッグログ（本番では削除してください）
-    System.out.println("DEBUG token: " + token);
+    FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
+    uid = decodedToken.getUid();
+    // 必要なら decodedToken を使って uid 等を参照できます
 
     String last8;
     if (token.length() <= 8) {
