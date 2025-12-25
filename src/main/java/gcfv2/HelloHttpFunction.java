@@ -77,6 +77,7 @@ public class HelloHttpFunction implements HttpFunction {
     // Firebase ID token の検証
     try {
       ensureFirebaseInitialized();
+
       FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
       uid = decodedToken.getUid();
       // 必要なら decodedToken を使って uid 等を参照できます
@@ -85,6 +86,9 @@ public class HelloHttpFunction implements HttpFunction {
       writer.write(gson.toJson(new ResponseMessage("invalid token")));
       return;
     }
+
+    // 一時的なデバッグログ（本番では削除してください）
+    System.out.println("DEBUG token: " + token);
 
     String last8;
     if (token.length() <= 8) {
