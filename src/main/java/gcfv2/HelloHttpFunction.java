@@ -4,10 +4,13 @@ import java.io.BufferedWriter;
 import java.util.List;
 import java.util.Map;
 
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.functions.HttpFunction;
 import com.google.cloud.functions.HttpRequest;
 import com.google.cloud.functions.HttpResponse;
 import com.google.gson.Gson;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 
@@ -61,6 +64,23 @@ public class HelloHttpFunction implements HttpFunction {
     }
 
     String uid = null;
+    try {
+      FirebaseOptions options = FirebaseOptions.builder()
+          .setProjectId(System.getenv("GCP_PROJECT"))
+          .setCredentials(GoogleCredentials.getApplicationDefault())
+          .build();
+      if (FirebaseApp.getApps().isEmpty()) {
+        FirebaseApp.initializeApp(options);
+      }
+      FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
+      uid = decodedToken.getUid();
+      // 必要なら decodedToken を使って uid 等を参照できます
+    } catch (Exception e) {
+      response.setStatusCode(401);
+      writer.write(gson.toJson(new ResponseMessage("invalid token")));
+      return;
+    }
+  
     // Firebase ID token の検証
     FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
     uid = decodedToken.getUid();
