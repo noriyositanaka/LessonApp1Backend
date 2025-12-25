@@ -66,7 +66,7 @@ public class HelloHttpFunction implements HttpFunction {
     String uid = null;
     try {
       FirebaseOptions options = FirebaseOptions.builder()
-          .setProjectId(System.getenv("GCP_PROJECT"))
+          .setProjectId("lessonapp1-4843e")
           .setCredentials(GoogleCredentials.getApplicationDefault())
           .build();
       if (FirebaseApp.getApps().isEmpty()) {
