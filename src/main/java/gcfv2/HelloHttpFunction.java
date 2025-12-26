@@ -83,9 +83,9 @@ public class HelloHttpFunction implements HttpFunction {
       return;
     }
     // 正常系レスポンス
-    response.setStatusCode(200);
+    // response.setStatusCode(200);
     User user = new User(uid, userName);
-    
-    writer.write(gson.toJson(user));
+    String userJson = gson.toJson(user);    
+    writer.write(userJson);
   }
 }
