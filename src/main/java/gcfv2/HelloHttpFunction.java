@@ -64,35 +64,28 @@ public class HelloHttpFunction implements HttpFunction {
     }
 
     String uid = null;
+    String userName = null;
     try {
-      FirebaseOptions options = FirebaseOptions.builder()
+      if (FirebaseApp.getApps().isEmpty()) {
+        FirebaseOptions options = FirebaseOptions.builder()
           .setProjectId("lessonapp1-4843e")
           .setCredentials(GoogleCredentials.getApplicationDefault())
           .build();
-      if (FirebaseApp.getApps().isEmpty()) {
         FirebaseApp.initializeApp(options);
       }
       FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
       uid = decodedToken.getUid();
+      userName = decodedToken.getName();
       // 必要なら decodedToken を使って uid 等を参照できます
     } catch (Exception e) {
       response.setStatusCode(401);
       writer.write(gson.toJson(new ResponseMessage("invalid token")));
       return;
     }
-  
-    // Firebase ID token の検証
-    FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
-    uid = decodedToken.getUid();
-    // 必要なら decodedToken を使って uid 等を参照できます
-
-    String last8;
-    if (token.length() <= 8) {
-      last8 = token;
-    } else {
-      last8 = token.substring(token.length() - 8);
-    }
-
-    writer.write(gson.toJson(new ResponseMessage("Hello world! uid: " + (uid == null ? "" : uid) + " token: " + last8)));
+    // 正常系レスポンス
+    response.setStatusCode(200);
+    User user = new User(uid, userName);
+    
+    writer.write(gson.toJson(user));
   }
 }
