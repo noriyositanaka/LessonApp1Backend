@@ -14,7 +14,12 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class HelloHttpFunction implements HttpFunction {
+
+  final static Logger logger = LoggerFactory.getLogger(HelloHttpFunction.class);
 
   static class ResponseMessage {
     String message;
@@ -25,6 +30,9 @@ public class HelloHttpFunction implements HttpFunction {
 
   public void service(final HttpRequest request, final HttpResponse response) throws Exception {
 
+    logger.info("HelloHttpFunction start");
+    logger.info("start token verification");
+    
     // ヘッダーからtokenを読み出す
     String token = null;
     Map<String, java.util.List<String>> headers = request.getHeaders();
@@ -37,6 +45,8 @@ public class HelloHttpFunction implements HttpFunction {
     if (headers == null) {
       response.setStatusCode(401);
       writer.write(gson.toJson(new ResponseMessage("missing token")));
+      logger.warn("header is null");
+
       return;
     }
 
@@ -47,6 +57,8 @@ public class HelloHttpFunction implements HttpFunction {
     if (authHeaders == null || authHeaders.isEmpty()) {
       response.setStatusCode(401);
       writer.write(gson.toJson(new ResponseMessage("missing token")));
+            
+      logger.warn("no authorization header found");
       return;
     }
 
@@ -76,16 +88,27 @@ public class HelloHttpFunction implements HttpFunction {
       FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(token);
       uid = decodedToken.getUid();
       userName = decodedToken.getName();
+      
+      logger.info("finish token verification");
+
       // 必要なら decodedToken を使って uid 等を参照できます
     } catch (Exception e) {
       response.setStatusCode(401);
       writer.write(gson.toJson(new ResponseMessage("invalid token")));
       return;
     }
+      
+    logger.info("start prepare response");
+
     // 正常系レスポンス
     // response.setStatusCode(200);
     User user = new User(uid, userName);
-    String userJson = gson.toJson(user);    
+    String userJson = gson.toJson(user);
+    logger.info("finish prepare response");
+    
+    logger.info("start sending response");
     writer.write(userJson);
+    logger.info("response sent");
+    logger.info("HelloHttpFunction end");
   }
 }
